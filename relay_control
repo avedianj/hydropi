@@ -1,0 +1,121 @@
+
+
+# Python 2.7.9 (default, Sep 17 2016, 20:26:04) 
+# [GCC 4.9.2] on linux2
+# Type "copyright", "credits" or "license()" for more information.
+# >>>
+try:
+    import RPi.GPIO as GPIO
+    from time import sleep
+    import time
+    import lcd_16x2
+    #import pigpio
+    #pi = pigpio.pi()
+    #import DHT22
+    GPIO.setwarnings(False)
+    #import Adafruit_CharLCD as LCD
+
+    #uncomment the 4 lines below this when DHT22 is setup
+    #s = DHT22.sensor(pi, 7)
+    #s.trigger()
+    #print('{:3.2f}'.format(s.humidity() / 1.))
+
+    #print('{:3.2f}'.format(s.temperature() / 1.))
+        
+    # Identify relay by function
+    # R1 40 LED Grow Light
+    # R2 4 output air pump
+    # R3 middle shelf florescent grow light
+    # R4 bottom shelf florescent grow light
+    # R5 open
+    # R6 open
+    # R7 open
+    # R8 open
+
+    # Identify which pin controls which relay
+    R1 = 8
+    R2 = 10
+    R3 = 12
+    R4 = 16
+    R5 = 18
+    R6 = 22
+    R7 = 24
+    R8 = 26
+
+    # Define R1 on time
+    R1ONH = 06
+    R1ONM = 30
+    R1ONS = 0
+    # Define R1 off time
+    R1OFFH = 18
+    R1OFFM = 30
+    R1OFFS = 00
+
+    # R2 is currently always on, see below
+
+    # Define R3 on time
+    R3ONH = 06
+    R3ONM = 30
+    R3ONS = 0
+    # Define R3 off time
+    R3OFFH = 07
+    R3OFFM = 00
+    R3OFFS = 00  
+
+    # The script as below using Board GPIO numbers
+    GPIO.setmode(GPIO.BOARD)
+
+    # Set relay pins as output
+    GPIO.setup(8, GPIO.OUT)
+    GPIO.setup(10, GPIO.OUT)
+    GPIO.setup(12, GPIO.OUT)
+    GPIO.setup(16, GPIO.OUT)
+    GPIO.setup(18, GPIO.OUT)
+    GPIO.setup(22, GPIO.OUT)
+    GPIO.setup(24, GPIO.OUT)
+    GPIO.setup(26, GPIO.OUT)
+
+    #Set relay pins to off
+    GPIO.output(R1, GPIO.HIGH)
+    GPIO.output(R2, GPIO.HIGH)
+    GPIO.output(R3, GPIO.HIGH)
+    GPIO.output(R4, GPIO.HIGH)
+    GPIO.output(R5, GPIO.HIGH)
+    GPIO.output(R6, GPIO.HIGH)
+    GPIO.output(R7, GPIO.HIGH)
+    GPIO.output(R8, GPIO.HIGH)
+    
+    while (True):
+        # Control relays based on time of day
+        dt = list(time.localtime())
+        hour = dt[3]
+        minute = dt[4]
+        second = dt[5]
+        time.sleep(1)
+            
+        if hour == R1ONH:
+            if minute == R1ONM:
+                if second == R1ONS:
+                    GPIO.output(R1, GPIO.LOW)
+
+        if hour == R1OFFH:
+            if minute == R1OFFM:
+                if second == R1OFFS:
+                    GPIO.output(R1, GPIO.HIGH)
+
+        if hour == R3ONH:
+            if minute == R3ONM:
+                if second == R3ONS:
+                    GPIO.output(R3, GPIO.LOW)
+
+        if hour == R3OFFH:
+            if minute == R3OFFM:
+                if second == R3OFFS:
+                    GPIO.output(R3, GPIO.HIGH)
+              
+        # Turn all relays ON
+        GPIO.output(R2, GPIO.LOW)
+                 
+    
+except KeyboardInterrupt:
+    GPIO.clean
